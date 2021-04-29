@@ -1,0 +1,23 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+python-twitter = "*"
+tweepy = "*"
+ipdb = "*"
+stanza = "*"
+spacy = "*"
+nltk = "*"
+emoji = "*"
+sqlalchemy = "*"
+streamlit = "*"
+python-dotenv = "*"
+tabulate = "*"
+streamlit-bokeh-events = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.7"
