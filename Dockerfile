@@ -1,4 +1,4 @@
-FROM python:3.8-slim
+FROM python:3.7-slim
 
 ARG SQLALCHEMY_DATABASE_URI=""
 
@@ -15,7 +15,8 @@ RUN pip3 install pipenv && pip3 install --upgrade setuptools
 
 COPY Pipfile* /usr/src/app/
 RUN pipenv install --dev --deploy --system
-RUN pipenv run python -m spacy download en_core_web_trf
+# RUN pipenv run python -m spacy download en_core_web_trf
+RUN pipenv run python -m nltk.downloader punkt
 
 COPY . /usr/src/app
 

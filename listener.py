@@ -26,7 +26,7 @@ class MyStreamListener(tweepy.StreamListener):
                 # Saves tweet into a file
                 return True
             except BaseException as e:
-                print("Error on_data %s" % str(e))
+                print(f"Error on_status {e}")
             return True
         return True
 

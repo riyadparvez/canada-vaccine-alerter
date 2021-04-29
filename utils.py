@@ -4,10 +4,11 @@ import emoji
 import nltk
 import pickle
 import re
-import spacy
+# import spacy
+from nltk.tokenize import word_tokenize
 
-nlp = spacy.load("en_core_web_trf")
-provinces = ('AB', 'ON', 'MB', 'BC', 'QC', 'SK')
+# nlp = spacy.load("en_core_web_trf")
+PROVINCES = ('AB', 'ON', 'MB', 'BC', 'QC', 'SK')
 
 with open('FSA.pickle', 'rb') as handle:
     FSA_SET = pickle.load(handle)
@@ -29,36 +30,45 @@ def cleaner(tweet):
     return tweet
 
 def process_tweet(tweet_obj):
-    place = tweet_obj._json["place"]
-    entities = tweet_obj._json["entities"]
+    # place = tweet_obj._json["place"]
+    # entities = tweet_obj._json["entities"]
 
     tweet_url = f"https://twitter.com/twitter/statuses/"
 
-    tweet_text = tweet_obj._json["full_text"]
-    province = tweet_text[:4][1:-1]
-    tweet = tweet_text[5:]
+    if "full_text" in tweet_obj._json:
+        original_tweet_text = tweet_obj._json["full_text"]
+    elif "full_text" in tweet_obj._json['extended_tweet']:
+        original_tweet_text = tweet_obj._json['extended_tweet']["full_text"]
+    
+    province = original_tweet_text[:4][1:-1]
+    tweet = original_tweet_text[5:]
     print(tweet)
-    age_groups = re.match(r'^([\s\d]+)+$', tweet_text)
+    age_groups = re.match(r'^([\s\d]+)+$', original_tweet_text)
     # print(age_groups)
 
     print()
     print()
 
-    tweet_text = cleaner(tweet_text)
+    tweet_text = cleaner(original_tweet_text)
     # print(tweet_text)
-    doc = nlp(tweet_text)
+    # doc = nlp(tweet_text)
     age_groups = set()
     is_number_before = False
     number_before = None
     fsas = set()
-    for token in doc:
-        if len(token.text) == 3 and token.text in FSA_SET:
-            fsas.add(token.text)
+
+    for token in word_tokenize(tweet_text):
+        # if len(token.text) == 3 and token.text in FSA_SET:
+        if len(token) == 3 and token in FSA_SET:
+            fsas.add(token)
         # print(token.text)
-        if is_int(token.text[:2]):
-            number_before = int(token.text[:2])
+        # if is_int(token.text[:2]):
+        if is_int(token[:2]):
+            # number_before = int(token.text[:2])
+            number_before = int(token[:2])
             is_number_before = True
-        elif is_number_before and token.text[-1] == '+':
+        # elif is_number_before and token.text[-1] == '+':
+        elif is_number_before and token[-1] == '+':
             age_groups.add(number_before)
             is_number_before = False    
             print(number_before)
@@ -71,24 +81,24 @@ def process_tweet(tweet_obj):
     print("========================================")
     print("Entities")
     cities = set()
-    for ent in doc.ents:
-        print(ent.text, ent.label_)
-        if ent.label_ == 'GPE' and ent.text.lower() not in ('canada', 'ontario', 'alberta', 'manitoba', 'saskatchewan', 'nova scotia'):
-            cities.add(ent.text.lower())
-        # elif ent.label_ == 'CARDINAL':
-        #     age_groups.add(ent.text)
+    # for ent in doc.ents:
+    #     print(ent.text, ent.label_)
+    #     if ent.label_ == 'GPE' and ent.text.lower() not in ('canada', 'ontario', 'alberta', 'manitoba', 'saskatchewan', 'nova scotia'):
+    #         cities.add(ent.text.lower())
+    #     # elif ent.label_ == 'CARDINAL':
+    #     #     age_groups.add(ent.text)
     
     print(cities)
     print()
 
     with engine.connect() as connection:
-        province = province if province in provinces else None
+        province = province if province in PROVINCES else None
         cities = str(cities) if cities in cities else None
         age_groups = str(age_groups) if len(age_groups) > 0 else None
         fsas = str(fsas) if len(fsas) > 0 else None
 
         ins = tweets.insert().values(tweet_id=tweet_obj.id,
-            tweet_text=tweet_text,
+            tweet_text=original_tweet_text,
             province=province,
             age_groups=age_groups,
             cities=cities,

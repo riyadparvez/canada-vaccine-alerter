@@ -4,18 +4,15 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-python-twitter = "*"
-tweepy = "*"
 ipdb = "*"
-stanza = "*"
-spacy = "*"
 nltk = "*"
 emoji = "*"
+python-dotenv = "*"
 sqlalchemy = "*"
 streamlit = "*"
-python-dotenv = "*"
-tabulate = "*"
 streamlit-bokeh-events = "*"
+tweepy = "*"
+tabulate = "*"
 
 [dev-packages]
 
