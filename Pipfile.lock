@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "81480d1895d984f7e4828dfb332699b3fcf0a39c662f1bf2ebcd4d52986e4c5d"
+            "sha256": "6fa0ab06096f5351f74b19504f1dca2b60cb4c656a7e6cc96121a64a6bc9f1e3"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -23,6 +23,13 @@
             ],
             "markers": "python_version >= '3.6'",
             "version": "==4.1.0"
+        },
+        "apscheduler": {
+            "hashes": [
+                "sha256:3bb5229eed6fbbdafc13ce962712ae66e175aa214c69bed35a06bffcf0c5e244",
+                "sha256:e8b1ecdb4c7cb2818913f766d5898183c7cb8936680710a4d3a966e02262e526"
+            ],
+            "version": "==3.6.3"
         },
         "argon2-cffi": {
             "hashes": [
@@ -782,6 +789,14 @@
             ],
             "index": "pypi",
             "version": "==0.17.1"
+        },
+        "python-telegram-bot": {
+            "hashes": [
+                "sha256:467b0f149bf4d0b9b638530c9a887dd0d6e64da1d5603cfe6eee839671ca1496",
+                "sha256:4c1fdc3dab192bf1f754ccd0692511976b38e2c6ad75010e30844a19c0193c90"
+            ],
+            "index": "pypi",
+            "version": "==13.4.1"
         },
         "pytz": {
             "hashes": [

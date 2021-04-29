@@ -13,6 +13,7 @@ streamlit = "*"
 streamlit-bokeh-events = "*"
 tweepy = "*"
 tabulate = "*"
+python-telegram-bot = "*"
 
 [dev-packages]
 

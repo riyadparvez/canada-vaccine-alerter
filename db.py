@@ -9,7 +9,7 @@ meta = MetaData()
 tweets = Table(
    'tweet', meta, 
    Column('id', Integer, primary_key = True), 
-   Column('tweet_id', Integer), 
+   Column('tweet_id', Integer, unique=True), 
    Column('tweet_text', String), 
    Column('province', String), 
    Column('age_groups', String), 
