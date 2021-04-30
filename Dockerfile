@@ -15,6 +15,7 @@ RUN pip3 install pipenv && pip3 install --upgrade setuptools
 
 COPY Pipfile* /usr/src/app/
 RUN pipenv install --dev --deploy --system
+# RUN sed -i 's/ \\xb7 Streamlit//g' /usr/local/lib/python3.7/site-packages/streamlit/static/static/js/main.68bdddd4.chunk.js
 # RUN pipenv run python -m spacy download en_core_web_trf
 # RUN pipenv run python -m nltk.downloader punkt
 
