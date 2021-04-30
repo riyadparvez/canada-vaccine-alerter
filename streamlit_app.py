@@ -109,6 +109,7 @@ if not tweet_df.empty:
         }
     )
     # tweet_df['Time'] = tweet_df['Time'].dt.strftime('%m-%d-%Y %h:%M')
+    tweet_df['Time'] = tweet_df['Time'].dt.tz_convert('US/Eastern')
     tweet_df['Time'] = tweet_df['Time'].dt.strftime('%a %d %b %I:%M %p')
     # st.write(tweet_df)
     # st.write(tweet_df.to_markdown(tablefmt="grid"))
