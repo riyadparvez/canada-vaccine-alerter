@@ -56,6 +56,8 @@ age_group = st.sidebar.selectbox(
     ("ANY", "18", "30", "40", "50",)
 )
 
+city = st.sidebar.text_input("City or Region (Please ensure it's correct spelling)")
+
 fsa = st.sidebar.text_input("FSA (First three characters of your postal code)")
 
 keyword = st.sidebar.text_input("Any specific keyword (eg pregnant, immuno-compromised)")
@@ -78,6 +80,9 @@ if age_group != 'ANY':
     is_search_criteria= True
 if len(fsa) > 0:
     tweet_df = tweet_df[tweet_df['FSAs'].str.contains(fsa, na=False, case=False)]
+    is_search_criteria= True
+if len(city) > 0:
+    tweet_df = tweet_df[tweet_df['cities'].str.contains(city, na=False, case=False)]
     is_search_criteria= True
 if len(keyword) > 0:
     tweet_df = tweet_df[tweet_df['tweet_text'].str.contains(keyword, na=False, case=False)]
