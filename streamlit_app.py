@@ -61,6 +61,8 @@ with st.beta_expander("Official Vaccine Sites:"):
 
 tweet_df = get_tweet_df()
 
+refresh = st.sidebar.button("Refresh")
+
 province = st.sidebar.selectbox(
     "Your province?",
     ("ALL", "ON", "BC", "AB", "QC", "MB", "NB",)
