@@ -1,5 +1,6 @@
 from utils import *
 import tweepy
+from loguru import logger
 from pprint import pprint
 
 def from_creator(status):
@@ -16,18 +17,16 @@ def from_creator(status):
 
 class MyStreamListener(tweepy.StreamListener):
     def on_status(self, status):
-        if from_creator(status):
-            try:
+        try:
+            if from_creator(status):
                 # Prints out the tweet
                 pprint(status._json)
-                print(dir(status))
                 print(status.text)
                 process_tweet(status)
                 # Saves tweet into a file
                 return True
-            except BaseException as e:
-                print(f"Error on_status {e}")
-            return True
+        except BaseException as e:
+            logger.exception(f"Error on_status {status}")
         return True
 
     def on_error(self, status_code):

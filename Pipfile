@@ -5,8 +5,9 @@ name = "pypi"
 
 [packages]
 ipdb = "*"
-nltk = "*"
 emoji = "*"
+loguru = "*"
+nltk = "*"
 python-dotenv = "*"
 sqlalchemy = "*"
 streamlit = "*"

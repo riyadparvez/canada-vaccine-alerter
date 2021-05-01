@@ -23,4 +23,4 @@ COPY . /usr/src/app
 
 EXPOSE 8501
 
-CMD ["pipenv", "run", "streamlit", "run", "streamlit_app.py"]
+CMD ["streamlit", "run", "streamlit_app.py"]
