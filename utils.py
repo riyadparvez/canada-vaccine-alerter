@@ -11,7 +11,7 @@ from nltk.tokenize import word_tokenize
 nltk.download('punkt')
 
 # nlp = spacy.load("en_core_web_trf")
-PROVINCES = ('AB', 'ON', 'MB', 'BC', 'QC', 'SK')
+PROVINCES = ('AB', 'ON', 'MB', 'BC', 'QC', 'SK', 'NB', 'NS', 'PEI',)
 
 with open('FSA.pickle', 'rb') as handle:
     FSA_SET = pickle.load(handle)

@@ -63,7 +63,7 @@ tweet_df = get_tweet_df()
 
 province = st.sidebar.selectbox(
     "Your province?",
-    ("ALL", "ON", "BC", "AB", "QC", "MB")
+    ("ALL", "ON", "BC", "AB", "QC", "MB", "NB",)
 )
 
 age_group = st.sidebar.selectbox(
@@ -80,35 +80,36 @@ keyword = st.sidebar.text_input("Any specific keyword (eg pregnant, immuno-compr
 st.sidebar.write("""
 Contact: [riyad.parvez@gmail.com](riyad.parvez@gmail.com)
 
-[Github Repo](https://github.com/riyadparvez/canada-vaccine-alerter)
+Source Code: [Github Repo](https://github.com/riyadparvez/canada-vaccine-alerter)
 
 Hosting is sponsored by: [Ukko Agro](https://ukko.ag/)
 """)
 
-is_search_criteria = False
+search_criteria = {}
 
 if province != 'ALL':
     tweet_df = tweet_df[tweet_df['province'].str.contains(province, na=False, case=False)]
-    is_search_criteria= True
+    search_criteria['province'] = province
 if age_group != 'ANY':
     tweet_df = tweet_df[tweet_df['age_groups'].str.contains(age_group, na=False, case=False)]
-    is_search_criteria= True
+    search_criteria['age_group'] = age_group
 if len(fsa) > 0:
     tweet_df = tweet_df[tweet_df['FSAs'].str.contains(fsa, na=False, case=False)]
-    is_search_criteria= True
+    search_criteria['fsa'] = fsa
 if len(city) > 0:
     tweet_df = tweet_df[tweet_df['cities'].str.contains(city, na=False, case=False)]
-    is_search_criteria= True
+    search_criteria['city'] = city
 if len(keyword) > 0:
     tweet_df = tweet_df[tweet_df['tweet_text'].str.contains(keyword, na=False, case=False)]
-    is_search_criteria= True
+    search_criteria['keyword'] = keyword
 
-if not is_search_criteria:
+if len(search_criteria) > 0:
     tweet_df = tweet_df[tweet_df['created_at'] > (datetime.now(timezone.utc) - timedelta(days=1))]
 else:
     tweet_df = tweet_df[tweet_df['created_at'] > (datetime.now(timezone.utc) - timedelta(days=3))]
 
 if not tweet_df.empty:
+    logger.info(f"{len(tweet_df)} results found for: {search_criteria}")
     # tweet_df['tweet_text'] = tweet_df.apply(lambda row: f"{row['tweet_text']}\nLink: (https://twitter.com/twitter/statuses/{row['tweet_id']})", axis=1)
     tweet_df = tweet_df.replace({r'\s+$': '', r'^\s+': ''}, regex=True).replace(r'\n',  ' ', regex=True)
     # tweet_df['tweet_text'] = tweet_df['tweet_text'].map(lambda x: escape_markdown(x, version=2))
@@ -136,6 +137,7 @@ if not tweet_df.empty:
 
     st.write(tweet_df.to_markdown(index=False))
 else:
+    logger.info(f"No Results found for: {search_criteria}")
     st.write("""
     #### We couldn't find any tweets from Vaccine Hunters in your search criteria. It is still possible that you are eligible for vaccination.
     #### Please try searching on internet or try again later.
