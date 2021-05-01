@@ -145,7 +145,10 @@ if not tweet_df.empty:
     # tweet_df['tweet_text'] = tweet_df['tweet_text'].map(lambda x: escape_markdown(x, version=2))
     tweet_df['tweet_text'] = tweet_df.apply(lambda row: f"[{escape_markdown(row['tweet_text'], version=2)}](https://twitter.com/twitter/statuses/{row['tweet_id']})", axis=1)
     tweet_df['tweet_link'] = tweet_df['tweet_id'].map(lambda x: f"https://twitter.com/twitter/statuses/{x}")
-    # tweet_df = tweet_df[['created_at', 'tweet_text', 'province', 'tweet_link', 'age_groups', 'cities', 'FSAs',]]
+    tweet_df['cities'] = tweet_df['cities'].str.slice(1,-1)
+    tweet_df['cities'] = tweet_df['cities'].str.replace(r"'", '')
+    tweet_df['FSAs'] = tweet_df['FSAs'].str.slice(1,-1)
+    tweet_df['FSAs'] = tweet_df['FSAs'].str.replace(r"'", '')
 
     tweet_df = tweet_df[['created_at', 'tweet_text', 'province', 'age_groups', 'cities', 'FSAs',]]
     tweet_df = tweet_df.rename(
@@ -159,10 +162,8 @@ if not tweet_df.empty:
             'FSAs': 'FSA',
         }
     )
-    # tweet_df['Time'] = tweet_df['Time'].dt.strftime('%m-%d-%Y %h:%M')
     tweet_df['Time'] = tweet_df['Time'].dt.tz_convert('US/Eastern')
     tweet_df['Time'] = tweet_df['Time'].dt.strftime('%a %d %b %I:%M %p')
-    # st.write(tweet_df)
     # st.write(tweet_df.to_markdown(tablefmt="grid"))
 
     st.write(tweet_df.to_markdown(index=False))
