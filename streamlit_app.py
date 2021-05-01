@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 # import plotly.express as px
 import pytz
+import SessionState
 import streamlit as st
 
 from sqlalchemy.sql.expression import column
@@ -22,6 +23,27 @@ from telegram.utils.helpers import escape_markdown
 
 ctx = get_report_ctx()
 
+province_index_dict = {
+    "ALL": 0,
+    "ON": 1,
+    "BC": 2,
+    "AB": 3,
+    "QC": 4,
+    "MB": 5,
+    "SK": 6,
+    "NB": 7,
+    "NS": 8,
+    "PEI": 9,
+}
+
+age_group_index_dict = {
+    "ANY": 0,
+    "18+": 1,
+    "30+": 2,
+    "40+": 3,
+    "50+": 4,
+}
+
 def get_tweet_df():
     db_path = '/tmp/test.sqlite'
     engine = create_engine(f'sqlite:///{db_path}')
@@ -33,6 +55,8 @@ def get_tweet_df():
     return tweet_df
 
 logger.info(f"Serving session: {get_report_ctx().session_id}")
+
+session_state = SessionState.get(province='ALL', age_group='ANY', city='', fsa='', keyword='',)
 
 st.set_page_config(page_title='Vaccine Updates', layout='wide')
 st.title('Vaccine Hunters Search')
@@ -61,23 +85,27 @@ with st.beta_expander("Official Vaccine Sites:"):
 
 tweet_df = get_tweet_df()
 
-refresh = st.sidebar.button("Refresh")
+refresh = st.sidebar.button("Refresh Results")
 
 province = st.sidebar.selectbox(
     "Your province?",
-    ("ALL", "ON", "BC", "AB", "QC", "MB", "NB",)
+    ("ALL", "ON", "BC", "AB", "QC", "MB", "SK", "NB", "NS", "PEI",),
 )
 
 age_group = st.sidebar.selectbox(
     "Your age group?",
-    ("ANY", "18", "30", "40", "50",)
+    ("ANY", "18+", "30+", "40+", "50+",),
 )
 
 city = st.sidebar.text_input("City or Region (Please ensure it's correct spelling)")
-
 fsa = st.sidebar.text_input("FSA (First three characters of your postal code)")
-
 keyword = st.sidebar.text_input("Any specific keyword (eg pregnant, immuno-compromised)")
+
+session_state.age_group = age_group
+session_state.province = province
+session_state.city = city
+session_state.fsa = fsa
+session_state.keyword = keyword
 
 st.sidebar.write("""
 Contact: [riyad.parvez@gmail.com](riyad.parvez@gmail.com)
