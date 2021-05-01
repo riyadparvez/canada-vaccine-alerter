@@ -116,7 +116,10 @@ if not tweet_df.empty:
 
     st.write(tweet_df.to_markdown(index=False))
 else:
-    st.write("We couldn't find anything in your search criteria. Please try searching manually or try again larer.")
+    st.write("""
+    #### We couldn't find any tweets from Vaccine Hunters in your search criteria. It is still possible that you are eligible for vaccination.
+    #### Please try searching on internet or try again later.
+    """)
 
 # tweet_df = tweet_df.set_index('Time')
 # st.table(tweet_df)

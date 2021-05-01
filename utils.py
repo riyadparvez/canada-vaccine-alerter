@@ -16,6 +16,9 @@ PROVINCES = ('AB', 'ON', 'MB', 'BC', 'QC', 'SK')
 with open('FSA.pickle', 'rb') as handle:
     FSA_SET = pickle.load(handle)
 
+with open('cities.pickle', 'rb') as handle:
+    CITY_SET = pickle.load(handle)
+
 def is_int(number_str):
     try:
         n = int(number_str)
@@ -60,8 +63,9 @@ def process_tweet(tweet_obj):
         is_number_before = False
         number_before = None
         fsas = set()
+        tokens = word_tokenize(tweet_text)
 
-        for token in word_tokenize(tweet_text):
+        for token in tokens:
             # if len(token.text) == 3 and token.text in FSA_SET:
             if len(token) == 3 and token in FSA_SET:
                 fsas.add(token)
@@ -78,6 +82,7 @@ def process_tweet(tweet_obj):
                 print(number_before)
             else:
                 is_number_before = False    
+        
         print("========================================")
         print("Age Groups")
         print(age_groups)
@@ -85,6 +90,12 @@ def process_tweet(tweet_obj):
         print("========================================")
         print("Entities")
         cities = set()
+
+        for token in tokens:
+            if token.lower() in CITY_SET:
+                cities.add(token.lower())
+
+        cities = [city.capitalize() for city in cities]
         # for ent in doc.ents:
         #     print(ent.text, ent.label_)
         #     if ent.label_ == 'GPE' and ent.text.lower() not in ('canada', 'ontario', 'alberta', 'manitoba', 'saskatchewan', 'nova scotia'):
@@ -92,12 +103,14 @@ def process_tweet(tweet_obj):
         #     # elif ent.label_ == 'CARDINAL':
         #     #     age_groups.add(ent.text)
         
+        print("========================================")
+        print("City")
         print(cities)
         print()
 
         with Session() as session:
             province = province if province in PROVINCES else None
-            cities = str(cities) if cities in cities else None
+            cities = str(cities) if len(cities) > 0 else None
             age_groups = str(age_groups) if len(age_groups) > 0 else None
             fsas = str(fsas) if len(fsas) > 0 else None
 
