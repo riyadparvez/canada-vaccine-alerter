@@ -7,22 +7,21 @@ import pytz
 import streamlit as st
 
 from sqlalchemy.sql.expression import column
-from sqlalchemy import create_engine
-from bokeh.plotting import figure
-from bokeh.models import ColumnDataSource, CustomJS
-from bokeh.models import DataTable, TableColumn, HTMLTemplateFormatter
+from sqlalchemy import create_engine, log
+# from bokeh.plotting import figure
+# from bokeh.models import ColumnDataSource, CustomJS
+# from bokeh.models import DataTable, TableColumn, HTMLTemplateFormatter
 from io import StringIO
 from dotenv import load_dotenv
 load_dotenv(override=True)
+from loguru import logger
 from pathlib import Path
 from streamlit import caching
 from streamlit.report_thread import get_report_ctx
-# caching.clear_cache()
 from telegram.utils.helpers import escape_markdown
 
 ctx = get_report_ctx()
 
-# @st.cache(allow_output_mutation=True)
 def get_tweet_df():
     db_path = '/tmp/test.sqlite'
     engine = create_engine(f'sqlite:///{db_path}')
@@ -32,6 +31,8 @@ def get_tweet_df():
     # tweet_df['created_at'] = pd.to_datetime(tweet_df['created_at']) \
     #                          .dt.tz_localize('America/Toronto')
     return tweet_df
+
+logger.info(f"Serving session: {get_report_ctx().session_id}")
 
 st.set_page_config(page_title='Vaccine Updates', layout='wide')
 st.title('Vaccine Hunters Search')
