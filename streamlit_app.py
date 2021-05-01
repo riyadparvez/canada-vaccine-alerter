@@ -41,8 +41,22 @@ st.write("""
 [Vaccine Hunters](https://vaccinehunters.ca/)
 
 [Vaccine Hunters Twitter](https://twitter.com/vaxhunterscan?lang=en)
+
 """)
 
+with st.beta_expander("Official Vaccine Sites:"):
+    st.write("""
+* [Canada Govt. Vaccine Site](https://www.canada.ca/en/public-health/services/diseases/coronavirus-disease-covid-19/vaccines.html)
+* [Ontario Vaccine Site](https://covid-19.ontario.ca/book-vaccine/)
+* [British Columbia Vaccine Site](https://www2.gov.bc.ca/gov/content/covid-19/vaccine/plan)
+* [Quebec Vaccine Site](https://www.quebec.ca/en/health/health-issues/a-z/2019-coronavirus/progress-of-the-covid-19-vaccination)
+* [Alberta Vaccine Site](https://www.alberta.ca/covid19-vaccine.aspx)
+* [Manitoba Vaccine Site](https://www.gov.mb.ca/covid19/vaccine/index.html)
+* [Saskatchewan Vaccine Site](https://www.saskatchewan.ca/covid19-vaccine)
+* [Nova Scotia Vaccine Site](https://novascotia.ca/coronavirus/book-your-vaccination-appointment/)
+* [New Brunswick Vaccine Site](https://www2.gnb.ca/content/gnb/en/corporate/promo/covid-19/nb-vaccine.html)
+* [PEI Vaccine Site](https://www.princeedwardisland.ca/en/information/health-and-wellness/getting-covid-19-vaccine)
+    """)
 
 tweet_df = get_tweet_df()
 
