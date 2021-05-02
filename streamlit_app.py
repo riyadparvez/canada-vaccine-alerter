@@ -5,6 +5,7 @@ import json
 import pandas as pd
 import SessionState
 import streamlit as st
+import sys
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -16,6 +17,9 @@ load_dotenv(override=True)
 from loguru import logger
 from streamlit.report_thread import get_report_ctx
 from telegram.utils.helpers import escape_markdown
+
+logger.remove()
+logger.add(sys.stdout, level="DEBUG", colorize=True, format="<green>{time:YYYY-MM-DD at HH:mm:ss}</green> <blue>|{level: ^8}|</blue> <cyan>{module: ^10}:{function: ^15}:{line: >3}</cyan> - <level>{message}</level>", backtrace=True)
 
 report_ctx = get_report_ctx()
 

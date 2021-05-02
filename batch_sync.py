@@ -4,8 +4,12 @@ from listener import *
 from utils import *
 
 import datetime
-from loguru import logger
+import sys
 import tweepy
+from loguru import logger
+
+logger.remove()
+logger.add(sys.stdout, level="DEBUG", colorize=True, format="<green>{time:YYYY-MM-DD at HH:mm:ss}</green> <blue>|{level: ^8}|</blue> <cyan>{module: ^10}:{function: ^15}:{line: >3}</cyan> - <level>{message}</level>", backtrace=True)
 
 auth = tweepy.OAuthHandler(TWITTER_CONSUMER_KEY, TWITTER_CONSUMER_SECRET)
 auth.set_access_token(TWITTER_ACCESS_TOKEN, TWITTER_ACCESS_TOKEN_SECRET)
@@ -21,5 +25,8 @@ def batch_sync():
     count = 0
     for tweet_obj in tweets_list:
         process_tweet(tweet_obj)
+        count += 1
+    
+    logger.info(f"Synced {count} tweets")
 
 batch_sync()
