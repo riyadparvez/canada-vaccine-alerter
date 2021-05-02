@@ -4,6 +4,8 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import MetaData, func
 
+from config import *
+
 meta = MetaData()
 
 tweets = Table(
@@ -19,8 +21,15 @@ tweets = Table(
    Column('ingested_at', DateTime(timezone=True), server_default=func.now()),
 )
 
-db_path = '/tmp/test.sqlite'
-engine = create_engine(f'sqlite:///{db_path}')
+page_views = Table(
+   'page_view', meta, 
+   Column('id', Integer, primary_key = True), 
+   Column('session_id', String),
+   Column('search_criteria', String),
+   Column('created_at', DateTime(timezone=True), server_default=func.now()),
+)
+
+engine = create_engine(f'sqlite:///{DB_PATH}')
 meta.create_all(engine)
 
 Session = sessionmaker(bind=engine)

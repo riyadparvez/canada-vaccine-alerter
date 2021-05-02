@@ -1,23 +1,19 @@
-import base64
+from config import DB_PATH
+from db import tweets, page_views
 from datetime import datetime, timedelta, timezone
-import numpy as np
+import json
 import pandas as pd
-# import plotly.express as px
-import pytz
 import SessionState
 import streamlit as st
 
-from sqlalchemy.sql.expression import column
-from sqlalchemy import create_engine, log
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
 # from bokeh.plotting import figure
 # from bokeh.models import ColumnDataSource, CustomJS
 # from bokeh.models import DataTable, TableColumn, HTMLTemplateFormatter
-from io import StringIO
 from dotenv import load_dotenv
 load_dotenv(override=True)
 from loguru import logger
-from pathlib import Path
-from streamlit import caching
 from streamlit.report_thread import get_report_ctx
 from telegram.utils.helpers import escape_markdown
 
@@ -47,8 +43,7 @@ age_group_index_dict = {
 @st.cache(ttl=60)
 def get_tweet_df():
     logger.info(f"Reading Tweets from sqlite database")
-    db_path = '/tmp/test.sqlite'
-    engine = create_engine(f'sqlite:///{db_path}')
+    engine = create_engine(f'sqlite:///{DB_PATH}')
     tweet_df = pd.read_sql_table('tweet', engine)
     tweet_df['created_at'] = pd.to_datetime(tweet_df['created_at'], utc=True)
     tweet_df = tweet_df.sort_values(by=['created_at'], ascending=False)
@@ -56,6 +51,18 @@ def get_tweet_df():
     #                          .dt.tz_localize('America/Toronto')
     logger.info(f"Retrieved {len(tweet_df)} tweets")
     return tweet_df
+
+def insert_page_view(session_id, search_criteria):
+    engine = create_engine(f'sqlite:///{DB_PATH}')
+    Session = sessionmaker(bind=engine)
+    search_criteria_str = json.dumps(search_criteria)
+    with Session() as session:
+        ins = page_views.insert().values(
+            session_id=session_id,
+            search_criteria=search_criteria_str,
+            )
+        res = session.execute(ins)
+        session.commit()
 
 logger.info(f"Serving session: {get_report_ctx().session_id}")
 
@@ -136,6 +143,8 @@ if len(keyword) > 0:
     tweet_df = tweet_df[tweet_df['tweet_text'].str.contains(keyword, na=False, case=False)]
     search_criteria['keyword'] = keyword
 
+insert_page_view(get_report_ctx().session_id, search_criteria)
+
 if len(search_criteria) > 0:
     tweet_df = tweet_df[tweet_df['created_at'] > (datetime.now(timezone.utc) - timedelta(days=1))]
 else:
@@ -152,6 +161,7 @@ if not tweet_df.empty:
     tweet_df['cities'] = tweet_df['cities'].str.replace(r"'", '')
     tweet_df['FSAs'] = tweet_df['FSAs'].str.slice(1,-1)
     tweet_df['FSAs'] = tweet_df['FSAs'].str.replace(r"'", '')
+    tweet_df['age_groups'] = tweet_df['age_groups'].str.slice(1,-1)
 
     tweet_df = tweet_df[['created_at', 'tweet_text', 'province', 'age_groups', 'cities', 'FSAs',]]
     tweet_df = tweet_df.rename(
@@ -172,7 +182,7 @@ if not tweet_df.empty:
     st.write(tweet_df.to_markdown(index=False))
 else:
     logger.info(f"No Results found for: {search_criteria}")
-    st.write("""
+    st.warning("""
     #### We couldn't find any tweets from Vaccine Hunters in your search criteria. It is still possible that you are eligible for vaccination.
     #### Please try searching on internet or try again later.
     """)
