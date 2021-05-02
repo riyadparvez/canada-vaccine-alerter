@@ -126,45 +126,53 @@ Hosting is sponsored by: [Ukko Agro](https://ukko.ag/)
 """)
 
 search_criteria = {}
-
+filtered_tweet_df = tweet_df
 if province != 'ALL':
-    tweet_df = tweet_df[tweet_df['province'].str.contains(province, na=False, case=False)]
+    filtered_tweet_df = filtered_tweet_df[filtered_tweet_df['province'].str.contains(province, na=False, case=False)]
     search_criteria['province'] = province
 if age_group != 'ANY':
-    tweet_df = tweet_df[tweet_df['age_groups'].str.contains(age_group, na=False, case=False)]
+    filtered_tweet_df = filtered_tweet_df[filtered_tweet_df['age_groups'].str.contains(age_group, na=False, case=False)]
     search_criteria['age_group'] = age_group
 if len(fsa) > 0:
-    tweet_df = tweet_df[tweet_df['FSAs'].str.contains(fsa, na=False, case=False)]
+    filtered_tweet_df = filtered_tweet_df[filtered_tweet_df['FSAs'].str.contains(fsa, na=False, case=False)]
     search_criteria['fsa'] = fsa
 if len(city) > 0:
-    tweet_df = tweet_df[tweet_df['cities'].str.contains(city, na=False, case=False)]
+    filtered_tweet_df = filtered_tweet_df[filtered_tweet_df['cities'].str.contains(city, na=False, case=False)]
     search_criteria['city'] = city
 if len(keyword) > 0:
-    tweet_df = tweet_df[tweet_df['tweet_text'].str.contains(keyword, na=False, case=False)]
+    filtered_tweet_df = filtered_tweet_df[filtered_tweet_df['tweet_text'].str.contains(keyword, na=False, case=False)]
     search_criteria['keyword'] = keyword
 
 insert_page_view(report_ctx.session_id, search_criteria)
 
+if filtered_tweet_df.empty:
+    search_substr = '|'.join([val for val in search_criteria.values()])
+    logger.info(f"Expanding search criteria 'keyword': {search_substr}")
+    filtered_tweet_df = tweet_df[tweet_df['tweet_text'].str.contains(search_substr, na=False, case=False)]
+    st.warning("""
+    #### We have expanded your search criteria to find more matches.
+    """)
+
 if len(search_criteria) > 0:
-    tweet_df = tweet_df[tweet_df['created_at'] > (datetime.now(timezone.utc) - timedelta(days=1))]
+    filtered_tweet_df = filtered_tweet_df[filtered_tweet_df['created_at'] > (datetime.now(timezone.utc) - timedelta(days=1))]
 else:
-    tweet_df = tweet_df[tweet_df['created_at'] > (datetime.now(timezone.utc) - timedelta(days=3))]
+    filtered_tweet_df = filtered_tweet_df[filtered_tweet_df['created_at'] > (datetime.now(timezone.utc) - timedelta(days=3))]
 
-if not tweet_df.empty:
-    logger.info(f"{len(tweet_df)} results found for: {search_criteria}")
+if not filtered_tweet_df.empty:
+    logger.info(f"{len(filtered_tweet_df)} results found for: {search_criteria}")
     # tweet_df['tweet_text'] = tweet_df.apply(lambda row: f"{row['tweet_text']}\nLink: (https://twitter.com/twitter/statuses/{row['tweet_id']})", axis=1)
-    tweet_df = tweet_df.replace({r'\s+$': '', r'^\s+': ''}, regex=True).replace(r'\n',  ' ', regex=True)
+    filtered_tweet_df = filtered_tweet_df.replace({r'\s+$': '', r'^\s+': ''}, regex=True).replace(r'\n',  ' ', regex=True)
     # tweet_df['tweet_text'] = tweet_df['tweet_text'].map(lambda x: escape_markdown(x, version=2))
-    tweet_df['tweet_text'] = tweet_df.apply(lambda row: f"[{escape_markdown(row['tweet_text'], version=2)}](https://twitter.com/twitter/statuses/{row['tweet_id']})", axis=1)
-    tweet_df['tweet_link'] = tweet_df['tweet_id'].map(lambda x: f"https://twitter.com/twitter/statuses/{x}")
-    tweet_df['cities'] = tweet_df['cities'].str.slice(1,-1)
-    tweet_df['cities'] = tweet_df['cities'].str.replace(r"'", '')
-    tweet_df['FSAs'] = tweet_df['FSAs'].str.slice(1,-1)
-    tweet_df['FSAs'] = tweet_df['FSAs'].str.replace(r"'", '')
-    tweet_df['age_groups'] = tweet_df['age_groups'].str.slice(1,-1)
+    filtered_tweet_df['tweet_text'] = filtered_tweet_df.apply(lambda row: f"[{escape_markdown(row['tweet_text'], version=2)}](https://twitter.com/twitter/statuses/{row['tweet_id']})", axis=1)
+    filtered_tweet_df['tweet_link'] = filtered_tweet_df['tweet_id'].map(lambda x: f"https://twitter.com/twitter/statuses/{x}")
+    filtered_tweet_df['cities'] = filtered_tweet_df['cities'].str.slice(1,-1)
+    filtered_tweet_df['cities'] = filtered_tweet_df['cities'].str.replace(r"'", '')
+    filtered_tweet_df['FSAs'] = filtered_tweet_df['FSAs'].str.slice(1,-1)
+    filtered_tweet_df['FSAs'] = filtered_tweet_df['FSAs'].str.replace(r"'", '')
+    filtered_tweet_df['age_groups'] = filtered_tweet_df['age_groups'].str.slice(1,-1)
 
-    tweet_df = tweet_df[['created_at', 'tweet_text', 'province', 'age_groups', 'cities', 'FSAs',]]
-    tweet_df = tweet_df.rename(
+    filtered_tweet_df = filtered_tweet_df[['created_at', 'tweet_text', 'province', 'age_groups', 'cities', 'FSAs',]]
+    filtered_tweet_df = filtered_tweet_df.rename(
         columns = {
             'created_at': 'Time',
             'tweet_text': 'Tweet',
@@ -175,11 +183,11 @@ if not tweet_df.empty:
             'FSAs': 'FSA',
         }
     )
-    tweet_df['Time'] = tweet_df['Time'].dt.tz_convert('US/Eastern')
-    tweet_df['Time'] = tweet_df['Time'].dt.strftime('%a %d %b %I:%M %p')
-    # st.write(tweet_df.to_markdown(tablefmt="grid"))
+    filtered_tweet_df['Time'] = filtered_tweet_df['Time'].dt.tz_convert('US/Eastern')
+    filtered_tweet_df['Time'] = filtered_tweet_df['Time'].dt.strftime('%a %d %b %I:%M %p')
+    # st.write(filtered_tweet_df.to_markdown(tablefmt="grid"))
 
-    st.write(tweet_df.to_markdown(index=False))
+    st.write(filtered_tweet_df.to_markdown(index=False))
 else:
     logger.info(f"No Results found for: {search_criteria}")
     st.warning("""
