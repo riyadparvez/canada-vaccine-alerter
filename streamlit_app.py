@@ -44,7 +44,9 @@ age_group_index_dict = {
     "50+": 4,
 }
 
+@st.cache(ttl=60)
 def get_tweet_df():
+    logger.info(f"Reading Tweets from sqlite database")
     db_path = '/tmp/test.sqlite'
     engine = create_engine(f'sqlite:///{db_path}')
     tweet_df = pd.read_sql_table('tweet', engine)
@@ -52,6 +54,7 @@ def get_tweet_df():
     tweet_df = tweet_df.sort_values(by=['created_at'], ascending=False)
     # tweet_df['created_at'] = pd.to_datetime(tweet_df['created_at']) \
     #                          .dt.tz_localize('America/Toronto')
+    logger.info(f"Retrieved {len(tweet_df)} tweets")
     return tweet_df
 
 logger.info(f"Serving session: {get_report_ctx().session_id}")
