@@ -17,7 +17,7 @@ from loguru import logger
 from streamlit.report_thread import get_report_ctx
 from telegram.utils.helpers import escape_markdown
 
-ctx = get_report_ctx()
+report_ctx = get_report_ctx()
 
 province_index_dict = {
     "ALL": 0,
@@ -143,7 +143,7 @@ if len(keyword) > 0:
     tweet_df = tweet_df[tweet_df['tweet_text'].str.contains(keyword, na=False, case=False)]
     search_criteria['keyword'] = keyword
 
-insert_page_view(get_report_ctx().session_id, search_criteria)
+insert_page_view(report_ctx.session_id, search_criteria)
 
 if len(search_criteria) > 0:
     tweet_df = tweet_df[tweet_df['created_at'] > (datetime.now(timezone.utc) - timedelta(days=1))]
@@ -190,10 +190,14 @@ else:
 # tweet_df = tweet_df.set_index('Time')
 # st.table(tweet_df)
 
+# TERMS of USE and PRIVACY POLICY
+if False:
+    st.markdown("""
+    <style>
+    .small-font {
+        font-size:10px !important;
+    }
+    </style>
+    """, unsafe_allow_html=True)
 
-# cds = ColumnDataSource(tweet_df)
-# columns = [
-#     TableColumn(field="tweet_link", title="Link", formatter=HTMLTemplateFormatter(template='<a href="<%= value %>"target="_blank"><%= value %>')),
-# ]
-# p = DataTable(source=cds, columns=columns, css_classes=["my_table"])
-# st.bokeh_chart(p)
+    st.markdown('<p class="small-font">Hello World !!</p>', unsafe_allow_html=True)
