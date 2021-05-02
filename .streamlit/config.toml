@@ -1,0 +1,7 @@
+[client]
+
+showErrorDetails = false
+
+[logger]
+
+level = "debug"
