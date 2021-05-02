@@ -96,6 +96,8 @@ with st.beta_expander("Official Vaccine Sites:"):
 tweet_df = get_tweet_df()
 
 refresh = st.sidebar.button("Refresh Results")
+if refresh:
+    st.caching.clear_cache()
 
 province = st.sidebar.selectbox(
     "Your province?",
@@ -150,7 +152,7 @@ if filtered_tweet_df.empty:
     logger.info(f"Expanding search criteria 'keyword': {search_substr}")
     filtered_tweet_df = tweet_df[tweet_df['tweet_text'].str.contains(search_substr, na=False, case=False)]
     st.warning("""
-    #### We have expanded your search criteria to find more matches.
+    #### We didn't find any results for your search criteria. We have expanded your search criteria to show you more matches.
     """)
 
 if len(search_criteria) > 0:
@@ -179,7 +181,7 @@ if not filtered_tweet_df.empty:
             'tweet_link': 'Link',
             'province': 'Province',
             'age_groups': 'Age Groups',
-            'cities': 'City',
+            'cities': 'City/Region',
             'FSAs': 'FSA',
         }
     )

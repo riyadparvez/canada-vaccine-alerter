@@ -19,11 +19,9 @@ class MyStreamListener(tweepy.StreamListener):
     def on_status(self, status):
         try:
             if from_creator(status):
-                # Prints out the tweet
                 pprint(status._json)
                 print(status.text)
                 process_tweet(status)
-                # Saves tweet into a file
                 return True
         except BaseException as e:
             logger.exception(f"Error on_status {status}")

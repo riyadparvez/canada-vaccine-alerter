@@ -37,7 +37,7 @@ def cleaner(tweet):
 
 def process_tweet(tweet_obj):
     try:
-        logger.debug(f"Starting processing tweet: {tweet_obj.id}")
+        logger.debug(f"Starting processing tweet: {tweet_obj.id} created_at: {tweet_obj.created_at}")
         # place = tweet_obj._json["place"]
         # entities = tweet_obj._json["entities"]
 
@@ -76,7 +76,6 @@ def process_tweet(tweet_obj):
             elif is_number_before and token[-1] == '+':
                 age_groups.add(number_before)
                 is_number_before = False    
-                print(number_before)
             else:
                 is_number_before = False    
         
@@ -124,7 +123,7 @@ def process_tweet(tweet_obj):
                 res = session.execute(ins)
             session.commit()
         
-        logger.debug(f"Finished processing tweet: {tweet_obj.id}")
+        logger.debug(f"Finished processing tweet: {tweet_obj.id} created_at: {tweet_obj.created_at}")
         # import ipdb; ipdb.set_trace()
     except Exception as e:
-        logger.exception(f"Error processing tweet: {tweet_obj.id}")
+        logger.exception(f"Error processing tweet: {tweet_obj.id} created_at: {tweet_obj.created_at}")
