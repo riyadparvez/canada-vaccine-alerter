@@ -72,7 +72,7 @@ logger.info(f"Serving session: {get_report_ctx().session_id}")
 
 session_state = SessionState.get(province='ALL', age_group='ANY', city='', fsa='', keyword='',)
 
-st.set_page_config(page_title='Vaccine Updates', layout='wide')
+st.set_page_config(page_title='Vaccine Updates (Canada)', layout='wide')
 st.title('Vaccine Hunters Search')
 st.write("""
 ### This website lets you search Vaccine Hunters tweets by province, age group and postal code.
@@ -197,8 +197,16 @@ if not filtered_tweet_df.empty:
 else:
     logger.info(f"No Results found for: {search_criteria}")
     st.warning("""
-    #### We couldn't find any tweets from Vaccine Hunters in your search criteria. It is still possible that you are eligible for vaccination.
-    #### Please try searching on internet or try again later.
+    #### We couldn't find any tweets from Vaccine Hunters in your search criteria. It is still possible that you are eligible for vaccination and there are vaccination opporunities avaiable for you.
+    #### Please try searching other sources or try again later.
+    """)
+
+st.write("\n\n")
+st.empty()
+
+with st.beta_expander("Terms of Use"):
+    st.write("""
+    THE SOFTWARE AND PLATFORM IS PROVIDED ON AN ‘AS IS’ BASIS, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. THE PLATFORM (VACCINEUPDATES.CA) MAKES NO WARRANTIES, REPRESENTATIONS OR CONDITIONS, EXPRESS OR IMPLIED, WRITTEN OR ORAL, ARISING BY STATUTE, OPERATION OF LAW, COURSE OF DEALING, USAGE OF TRADE OR OTHERWISE, REGARDING THE PLATFORM OR SERVICES. VACCINEUPDATES.CA (INCLUDING ITS AFFILIATES, LICENSORS, SUPPLIERS AND SUBCONTRACTORS) DOES NOT REPRESENT OR WARRANT THAT THE PLATFORM AND SERVICES WILL MEET ANY OR ALL OF USER’S PARTICULAR REQUIREMENTS, THAT THE PLATFORM WILL OPERATE ERROR-FREE OR UNINTERRUPTED OR THAT ALL ERRORS OR DEFECTS IN THE SERVICE CAN BE FOUND OR CORRECTED.
     """)
 
 # tweet_df = tweet_df.set_index('Time')
