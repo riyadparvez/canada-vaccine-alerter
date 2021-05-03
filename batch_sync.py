@@ -6,6 +6,7 @@ from utils import *
 import argparse
 import datetime
 import sys
+import time
 import tweepy
 from loguru import logger
 
@@ -31,19 +32,32 @@ def parse_arguments():
     return parser.parse_args()
 
 
-def batch_sync(days_to_sync):
+def limit_handled(cursor):
+    while True:
+        try:
+            yield next(cursor)
+        except tweepy.RateLimitError:
+            logger.error(f"Rate Limit is reached. Sleeping for 15 minutes.")
+            time.sleep(15 * 60)
+
+
+def batch_sync(days_to_sync: int):
     today = datetime.date.today()
     start_time= today - datetime.timedelta(days=days_to_sync)
     logger.info(f"Starting batch syncing from {start_time} to {today}")
 
-    # tweets_list = tweepy.Cursor(api.search, q=f"from:vaxhunterscan since: {start_time} until: {today} exclude:replies", tweet_mode='extended', lang='en').items()
-    tweets_list = tweepy.Cursor(api.search, q=f"from:vaxhunterscan since: {start_time} until: {today}", tweet_mode='extended', lang='en').items()
-    count = 0
-    for tweet_obj in tweets_list:
+    search_query = f"from:vaxhunterscan since: {start_time} until: {today} exclude:replies"
+    search_query = f"from:vaxhunterscan since: {start_time} until: {today}"
+    search_query = f"from:vaxhunterscan since: {start_time}"
+    search_query = f"from:vaxhunterscan"
+    cursor = tweepy.Cursor(api.search, q=search_query, tweet_mode='extended', lang='en')
+    tweets = []
+    # for tweet_obj in limit_handled(cursor.items()):
+    for tweet_obj in cursor.items(200):
         process_tweet(tweet_obj)
-        count += 1
-    
-    logger.info(f"Synced {count} tweets")
+        tweets.append(tweet_obj)
+
+    logger.info(f"Finished syncing {len(tweets)} tweets")
 
 
 if __name__ == '__main__':

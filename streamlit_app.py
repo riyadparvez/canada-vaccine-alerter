@@ -170,7 +170,8 @@ if filtered_tweet_df.empty:
     filtered_tweet_df = filtered_tweet_df[mask]
     filtered_tweet_df = filtered_tweet_df.sort_values(by=['province', 'created_at',])
     st.warning("""
-    #### We didn't find any results for your search criteria. We have expanded your search criteria to show you more matches.
+    #### We didn't find any results for your search criteria. You might still be eligible for vaccination.
+    #### We have expanded your search criteria to show you more matches. Please also look at other sources for vaccination opportunities.
     """)
 
 if len(search_criteria) > 20:
