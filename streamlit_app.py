@@ -155,11 +155,14 @@ if filtered_tweet_df.empty:
     search_substr = '|'.join([val for val in search_criteria.values()])
     logger.info(f"Expanding search criteria 'keyword': {search_substr}")
     filtered_tweet_df = tweet_df[tweet_df['tweet_text'].str.contains(search_substr, na=False, case=False)]
+    mask = filtered_tweet_df['province'].str.contains(province, na=False, case=False) | filtered_tweet_df['province'].isnull()
+    filtered_tweet_df = filtered_tweet_df[mask]
+    filtered_tweet_df = filtered_tweet_df.sort_values(by=['province', 'created_at',])
     st.warning("""
     #### We didn't find any results for your search criteria. We have expanded your search criteria to show you more matches.
     """)
 
-if len(search_criteria) > 0:
+if len(search_criteria) > 20:
     filtered_tweet_df = filtered_tweet_df[filtered_tweet_df['created_at'] > (datetime.now(timezone.utc) - timedelta(days=1))]
 else:
     filtered_tweet_df = filtered_tweet_df[filtered_tweet_df['created_at'] > (datetime.now(timezone.utc) - timedelta(days=3))]
