@@ -136,15 +136,26 @@ filtered_tweet_df = tweet_df
 if province != 'ALL':
     filtered_tweet_df = filtered_tweet_df[filtered_tweet_df['province'].str.contains(province, na=False, case=False)]
     search_criteria['province'] = province
+
 if age_group != 'ANY':
-    filtered_tweet_df = filtered_tweet_df[filtered_tweet_df['age_groups'].str.contains(age_group, na=False, case=False)]
+    search_substr = age_group
+    if age_group == '30+':
+        search_substr = '18|30'
+    elif age_group == '40+':
+        search_substr = '18|30|40'
+    elif age_group == '50+':
+        search_substr = '18|30|40|50'
+    filtered_tweet_df = filtered_tweet_df[filtered_tweet_df['age_groups'].str.contains(search_substr, na=False, case=False)]
     search_criteria['age_group'] = age_group
+
 if len(fsa) > 0:
     filtered_tweet_df = filtered_tweet_df[filtered_tweet_df['FSAs'].str.contains(fsa, na=False, case=False)]
     search_criteria['fsa'] = fsa
+
 if len(city) > 0:
     filtered_tweet_df = filtered_tweet_df[filtered_tweet_df['cities'].str.contains(city, na=False, case=False)]
     search_criteria['city'] = city
+
 if len(keyword) > 0:
     filtered_tweet_df = filtered_tweet_df[filtered_tweet_df['tweet_text'].str.contains(keyword, na=False, case=False)]
     search_criteria['keyword'] = keyword
@@ -172,7 +183,8 @@ if not filtered_tweet_df.empty:
     # tweet_df['tweet_text'] = tweet_df.apply(lambda row: f"{row['tweet_text']}\nLink: (https://twitter.com/twitter/statuses/{row['tweet_id']})", axis=1)
     filtered_tweet_df = filtered_tweet_df.replace({r'\s+$': '', r'^\s+': ''}, regex=True).replace(r'\n',  ' ', regex=True)
     # tweet_df['tweet_text'] = tweet_df['tweet_text'].map(lambda x: escape_markdown(x, version=2))
-    filtered_tweet_df['tweet_text'] = filtered_tweet_df.apply(lambda row: f"[{escape_markdown(row['tweet_text'], version=2)}](https://twitter.com/twitter/statuses/{row['tweet_id']})", axis=1)
+    filtered_tweet_df['tweet_text'] = \
+        filtered_tweet_df.apply(lambda row: f"[{escape_markdown(row['tweet_text'], version=2)}](https://twitter.com/twitter/statuses/{row['tweet_id']})", axis=1)
     filtered_tweet_df['tweet_link'] = filtered_tweet_df['tweet_id'].map(lambda x: f"https://twitter.com/twitter/statuses/{x}")
     filtered_tweet_df['cities'] = filtered_tweet_df['cities'].str.slice(1,-1)
     filtered_tweet_df['cities'] = filtered_tweet_df['cities'].str.replace(r"'", '')
