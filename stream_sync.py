@@ -12,7 +12,7 @@ logger.add(sys.stdout, level="DEBUG", colorize=True, format="<green>{time:YYYY-M
 
 auth = tweepy.OAuthHandler(TWITTER_CONSUMER_KEY, TWITTER_CONSUMER_SECRET)
 auth.set_access_token(TWITTER_ACCESS_TOKEN, TWITTER_ACCESS_TOKEN_SECRET)
-api = tweepy.API(auth,wait_on_rate_limit=True)
+api = tweepy.API(auth, wait_on_rate_limit=True, wait_on_rate_limit_notify=True)
 
 listener = MyStreamListener()
 

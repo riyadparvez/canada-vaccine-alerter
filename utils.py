@@ -48,6 +48,10 @@ def process_tweet(tweet_obj):
         elif "full_text" in tweet_obj._json['extended_tweet']:
             original_tweet_text = tweet_obj._json['extended_tweet']["full_text"]
         
+        if original_tweet_text.startswith("@"):
+            logger.info(f"Skipping tweet because it's a reply: {tweet_obj.id} created_at: {tweet_obj.created_at}\n{original_tweet_text}")
+            return
+
         province = original_tweet_text[:4][1:-1]
         tweet = original_tweet_text[5:]
         print(tweet)
