@@ -63,8 +63,20 @@ def process_tweet(tweet_obj):
         tokens = word_tokenize(tweet_text)
 
         for token in tokens:
+            if province is None:
+                if token.lower() == 'ontario':
+                    province = 'ON'
+                elif token.lower() == 'manitoba':
+                    province = 'MB'
+                elif token.lower() == 'alberta':
+                    province = 'AB'
+                elif token.lower() == 'quebec':
+                    province = 'QB'
+                elif token.lower() == 'saskatchewan':
+                    province = 'SK'
+
             # if len(token.text) == 3 and token.text in FSA_SET:
-            if len(token) == 3 and token in FSA_SET:
+            if len(token) == 3 and token.upper() in FSA_SET:
                 fsas.add(token)
             # print(token.text)
             # if is_int(token.text[:2]):
