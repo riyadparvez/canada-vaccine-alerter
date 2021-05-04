@@ -1,5 +1,6 @@
 from config import DB_PATH
 from db import tweets, page_views
+from dummy import *
 from datetime import datetime, timedelta, timezone
 import json
 import pandas as pd

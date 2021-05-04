@@ -6,3 +6,9 @@ showErrorDetails = false
 
 level = "info"
 messageFormat = "%(asctime)s %(levelname) -7s %(name)s: %(message)s"
+
+[server]
+
+# Automatically rerun script when the file is modified on disk.
+# Default: false
+runOnSave = true
