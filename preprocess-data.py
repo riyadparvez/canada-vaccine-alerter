@@ -1,15 +1,3 @@
-# with engine.connect() as connection:
-#     table_statement = f"""
-#         CREATE TABLE IF NOT EXISTS t (
-#             id INTEGER PRIMARY KEY  AUTOINCREMENT,
-#             tweet TEXT,
-#             province TEXT,
-#             CHECK(province IN ('ON', 'MB', 'BC', 'QC', 'SK', NULL))
-#         );
-#     """
-#     res = connection.execute(table_statement)
-#     print(res)
-
 import pandas as pd
 import pickle
 

@@ -206,7 +206,7 @@ if filtered_tweet_df.empty:
 if len(search_criteria) > 20:
     filtered_tweet_df = filtered_tweet_df[filtered_tweet_df['created_at'] > (datetime.now(timezone.utc) - timedelta(days=1))]
 else:
-    filtered_tweet_df = filtered_tweet_df[filtered_tweet_df['created_at'] > (datetime.now(timezone.utc) - timedelta(days=3))]
+    filtered_tweet_df = filtered_tweet_df[filtered_tweet_df['created_at'] > (datetime.now(timezone.utc) - timedelta(days=7))]
 
 if not filtered_tweet_df.empty:
     logger.info(f"{len(filtered_tweet_df)} results found for: {search_criteria}")

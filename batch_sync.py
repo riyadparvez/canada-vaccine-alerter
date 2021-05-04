@@ -29,6 +29,14 @@ def parse_arguments():
         default=1,
         help="Days to sync.",
     )
+    parser.add_argument(
+        "-n",
+        "--number-of-tweets",
+        type=int,
+        required=False,
+        default=200,
+        help="Number of tweets to sync.",
+    )
     return parser.parse_args()
 
 
@@ -41,7 +49,7 @@ def limit_handled(cursor):
             time.sleep(15 * 60)
 
 
-def batch_sync(days_to_sync: int):
+def batch_sync(days_to_sync: int, number_of_tweets):
     today = datetime.date.today()
     start_time= today - datetime.timedelta(days=days_to_sync)
     logger.info(f"Starting batch syncing from {start_time} to {today}")
@@ -53,7 +61,7 @@ def batch_sync(days_to_sync: int):
     cursor = tweepy.Cursor(api.search, q=search_query, tweet_mode='extended', lang='en')
     tweets = []
     # for tweet_obj in limit_handled(cursor.items()):
-    for tweet_obj in cursor.items(200):
+    for tweet_obj in cursor.items(number_of_tweets):
         process_tweet(tweet_obj)
         tweets.append(tweet_obj)
 
@@ -62,4 +70,4 @@ def batch_sync(days_to_sync: int):
 
 if __name__ == '__main__':
     args = parse_arguments()
-    batch_sync(args.days_to_sync)
+    batch_sync(args.days_to_sync, args.number_of_tweets)
