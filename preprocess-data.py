@@ -34,13 +34,13 @@ with open('cities.pickle', 'wb') as handle:
     pickle.dump(cities, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 
-cities_fsas = df[['city_ascii', 'postal']].values.tolist()
+cities_fsas = df[['city_ascii', 'province_id', 'postal',]].values.tolist()
 print(cities_fsas)
 
 fsa_city_dict = {}
-for city, fsas in cities_fsas:
+for city, province, fsas in cities_fsas:
     for fsa in fsas:
-        fsa_city_dict[fsa] = city
+        fsa_city_dict[fsa] = (city, province,)
 print(fsa_city_dict)
 with open('fsa-city-dict.pickle', 'wb') as handle:
     pickle.dump(fsa_city_dict, handle, protocol=pickle.HIGHEST_PROTOCOL)

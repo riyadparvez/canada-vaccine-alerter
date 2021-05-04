@@ -4,11 +4,16 @@ import emoji
 import nltk
 import pickle
 import re
+import sys
 # import spacy
 from loguru import logger
 from nltk.tokenize import word_tokenize
+from sqlalchemy import func
 
 nltk.download('punkt')
+
+logger.remove()
+logger.add(sys.stdout, level="DEBUG", colorize=True, format="<green>{time:YYYY-MM-DD at HH:mm:ss}</green> <blue>|{level: ^8}|</blue> <cyan>{module: ^10}:{function: ^15}:{line: >3}</cyan> - <level>{message}</level>", backtrace=True)
 
 # nlp = spacy.load("en_core_web_trf")
 PROVINCES = ('AB', 'ON', 'MB', 'BC', 'QC', 'SK', 'NB', 'NS', 'PEI',)
@@ -56,6 +61,8 @@ def process_tweet(tweet_obj):
             return
 
         province = original_tweet_text[:4][1:-1]
+        province = province if province in PROVINCES else None
+
         tweet = original_tweet_text[5:]
         print(tweet)
         age_groups = re.match(r'^([\s\d]+)+$', original_tweet_text)
@@ -120,7 +127,12 @@ def process_tweet(tweet_obj):
             cities = set([city.capitalize() for city in cities])
         elif len(cities) == 0 and len(fsas) > 0:
             for fsa in fsas:
-                cities.add(FSA_CITY_DICT[fsa])
+                cities.add(FSA_CITY_DICT[fsa][0])
+
+        if province is None:
+            for fsa in fsas:
+                province = FSA_CITY_DICT[fsa][1]
+                break
 
         print("========================================")
         print("Cities")
@@ -144,6 +156,20 @@ def process_tweet(tweet_obj):
                     created_at=tweet_obj.created_at,
                     )
                 res = session.execute(ins)
+                logger.debug(f"Inserted tweet: {tweet_obj.id}")
+            else:
+                session.query(tweets).filter_by(tweet_id=tweet_obj.id).update(
+                    {
+                        'tweet_text': original_tweet_text,
+                        'province': province,
+                        'age_groups': age_groups,
+                        'cities': cities,
+                        'FSAs': fsas,
+                        'created_at': tweet_obj.created_at,
+                    }
+                )
+                logger.debug(f"Updated tweet: {tweet_obj.id}")
+
             session.commit()
         
         logger.debug(f"Finished processing tweet: {tweet_obj.id} created_at: {tweet_obj.created_at}")
