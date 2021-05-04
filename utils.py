@@ -19,6 +19,9 @@ with open('FSA.pickle', 'rb') as handle:
 with open('cities.pickle', 'rb') as handle:
     CITY_SET = pickle.load(handle)
 
+with open('fsa-city-dict.pickle', 'rb') as handle:
+    FSA_CITY_DICT = pickle.load(handle)
+
 def is_int(number_str):
     try:
         n = int(number_str)
@@ -95,19 +98,7 @@ def process_tweet(tweet_obj):
             else:
                 is_number_before = False    
         
-        print("========================================")
-        print("Age Groups")
-        print(age_groups)
 
-        print("========================================")
-        print("Entities")
-        cities = set()
-
-        for token in tokens:
-            if token.lower() in CITY_SET:
-                cities.add(token.lower())
-
-        cities = [city.capitalize() for city in cities]
         # for ent in doc.ents:
         #     print(ent.text, ent.label_)
         #     if ent.label_ == 'GPE' and ent.text.lower() not in ('canada', 'ontario', 'alberta', 'manitoba', 'saskatchewan', 'nova scotia'):
@@ -116,7 +107,23 @@ def process_tweet(tweet_obj):
         #     #     age_groups.add(ent.text)
         
         print("========================================")
-        print("City")
+        print("Age Groups")
+        print(age_groups)
+
+        cities = set()
+
+        for token in tokens:
+            if token.lower() in CITY_SET:
+                cities.add(token.lower())
+        
+        if len(cities) > 0:
+            cities = set([city.capitalize() for city in cities])
+        elif len(cities) == 0 and len(fsas) > 0:
+            for fsa in fsas:
+                cities.add(FSA_CITY_DICT[fsa])
+
+        print("========================================")
+        print("Cities")
         print(cities)
         print()
 
