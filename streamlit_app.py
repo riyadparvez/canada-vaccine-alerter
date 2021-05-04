@@ -73,6 +73,9 @@ logger.info(f"Serving session: {get_report_ctx().session_id}")
 
 session_state = SessionState.get(province='ALL', age_group='ANY', city='', fsa='', keyword='',)
 
+province_options = ("ALL", "ON", "BC", "AB", "QC", "MB", "SK", "NB", "NS", "PEI",)
+age_group_options = ("ANY", "18+", "30+", "40+", "50+",)
+
 st.set_page_config(page_title='Vaccine Updates (Canada)', layout='wide')
 st.title('Vaccine Hunters Search')
 st.write("""
@@ -104,25 +107,50 @@ refresh = st.sidebar.button("Refresh Results")
 if refresh:
     st.caching.clear_cache()
 
+query_params = st.experimental_get_query_params()
+
+province_default = int(query_params["province"][0]) if "province" in query_params else 0
 province = st.sidebar.selectbox(
     "Your province?",
-    ("ALL", "ON", "BC", "AB", "QC", "MB", "SK", "NB", "NS", "PEI",),
+    province_options,
+    index = province_default,
 )
 
+age_group_default = int(query_params["age_group"][0]) if "age_group" in query_params else 0
 age_group = st.sidebar.selectbox(
     "Your age group?",
-    ("ANY", "18+", "30+", "40+", "50+",),
+    age_group_options,
+    index = age_group_default,
 )
 
-city = st.sidebar.text_input("City or Region (Please ensure it's correct spelling)")
-fsa = st.sidebar.text_input("FSA (First three characters of your postal code)")
-keyword = st.sidebar.text_input("Any specific keyword (eg pregnant, immuno-compromised)")
+city_default = query_params["city"][0] if "city" in query_params else ''
+city = st.sidebar.text_input("City or Region (Please ensure it's correct spelling)", value=city_default)
+fsa_default = query_params["fsa"][0] if "fsa" in query_params else ''
+fsa = st.sidebar.text_input("FSA (First three characters of your postal code)", value=fsa_default)
+keyword_default = query_params["keyword"][0] if "keyword" in query_params else ''
+keyword = st.sidebar.text_input("Any specific keyword (eg pregnant, immuno-compromised)", value=keyword_default)
 
-session_state.age_group = age_group
-session_state.province = province
-session_state.city = city
-session_state.fsa = fsa
-session_state.keyword = keyword
+# session_state.age_group = age_group
+# session_state.province = province
+# session_state.city = city
+# session_state.fsa = fsa
+# session_state.keyword = keyword
+
+st.experimental_set_query_params(
+    province=province_options.index(province),
+    age_group=age_group_options.index(age_group),
+    city=city,
+    fsa=fsa,
+    keyword=keyword,
+    )
+# st.experimental_set_query_params()
+
+# if len(city) > 0:
+#     st.experimental_set_query_params(city=city)
+# if len(fsa) > 0:
+#     st.experimental_set_query_params(fsa=fsa)
+# if len(keyword) > 0:
+#     st.experimental_set_query_params(keyword=keyword)
 
 st.sidebar.write("""
 Contact: [riyad.parvez@gmail.com](riyad.parvez@gmail.com)
