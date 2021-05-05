@@ -125,7 +125,7 @@ def process_tweet(tweet_obj):
         
         if len(cities) > 0:
             cities = set([city.capitalize() for city in cities])
-        elif len(cities) == 0 and len(fsas) > 0:
+        if len(fsas) > 0:
             for fsa in fsas:
                 cities.add(FSA_CITY_DICT[fsa][0])
 
