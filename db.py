@@ -29,7 +29,7 @@ page_views = Table(
    Column('created_at', DateTime(timezone=True), server_default=func.now()),
 )
 
-engine = create_engine(f'sqlite:///{DB_PATH}')
+engine = create_engine(f'{SQLALCHEMY_DATABASE_URI}')
 meta.create_all(engine)
 
 Session = sessionmaker(bind=engine)

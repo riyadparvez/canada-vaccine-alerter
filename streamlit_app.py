@@ -1,4 +1,4 @@
-from config import DB_PATH
+from config import DB_PATH, SQLALCHEMY_DATABASE_URI
 from db import tweets, page_views
 from dummy import *
 from datetime import datetime, timedelta, timezone
@@ -48,7 +48,8 @@ age_group_index_dict = {
 @st.cache(ttl=60)
 def get_tweet_df():
     logger.info(f"Reading Tweets from sqlite database")
-    engine = create_engine(f'sqlite:///{DB_PATH}')
+    # engine = create_engine(f'sqlite:///{DB_PATH}')
+    engine = create_engine(SQLALCHEMY_DATABASE_URI)
     tweet_df = pd.read_sql_table('tweet', engine)
     tweet_df['created_at'] = pd.to_datetime(tweet_df['created_at'], utc=True)
     tweet_df = tweet_df.sort_values(by=['created_at'], ascending=False)
@@ -58,7 +59,8 @@ def get_tweet_df():
     return tweet_df
 
 def insert_page_view(session_id, search_criteria):
-    engine = create_engine(f'sqlite:///{DB_PATH}')
+    # engine = create_engine(f'sqlite:///{DB_PATH}')
+    engine = create_engine(SQLALCHEMY_DATABASE_URI)
     Session = sessionmaker(bind=engine)
     search_criteria_str = json.dumps(search_criteria)
     with Session() as session:
