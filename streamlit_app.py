@@ -245,6 +245,8 @@ with logger.contextualize(session_id=current_session_id):
         filtered_tweet_df['Time'] = filtered_tweet_df['Time'].dt.tz_convert('US/Eastern')
         filtered_tweet_df['Time'] = filtered_tweet_df['Time'].dt.strftime('%a %d %b %I:%M %p')
         # st.write(filtered_tweet_df.to_markdown(tablefmt="grid"))
+        # tweet_df = tweet_df.set_index('Time')
+        # st.table(tweet_df)
 
         st.write(filtered_tweet_df.to_markdown(index=False))
     else:
@@ -265,16 +267,21 @@ with logger.contextualize(session_id=current_session_id):
 
     logger.info(f"Finished serving current page")
 
-    # tweet_df = tweet_df.set_index('Time')
-    # st.table(tweet_df)
+hide_streamlit_style = """
+            <style>
+            #MainMenu {visibility: hidden;}
+            footer {visibility: hidden;}
+            </style>
+            """
+st.markdown(hide_streamlit_style, unsafe_allow_html=True) 
 
-    if False:
-        st.markdown("""
-        <style>
-        .small-font {
-            font-size:10px !important;
-        }
-        </style>
-        """, unsafe_allow_html=True)
+if False:
+    st.markdown("""
+    <style>
+    .small-font {
+        font-size:10px !important;
+    }
+    </style>
+    """, unsafe_allow_html=True)
 
-        st.markdown('<p class="small-font">Hello World !!</p>', unsafe_allow_html=True)
+    st.markdown('<p class="small-font">Hello World !!</p>', unsafe_allow_html=True)
