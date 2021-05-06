@@ -4,6 +4,7 @@ from dummy import *
 from datetime import datetime, timedelta, timezone
 import json
 import pandas as pd
+import pytz
 import SessionState
 import streamlit as st
 import sys
@@ -19,6 +20,7 @@ from loguru import logger
 from streamlit.report_thread import get_report_ctx
 from telegram.utils.helpers import escape_markdown
 
+local_timzeone = pytz.timezone('America/Toronto')
 
 def log_session_id_formatter(record):
     if "session_id" in record["extra"]:
@@ -81,7 +83,7 @@ def insert_page_view(session_id, search_criteria):
 
 current_session_id = report_ctx.session_id
 with logger.contextualize(session_id=current_session_id):
-    logger.info(f"Started serving session")
+    logger.info(f"Started serving  current page")
 
     session_state = SessionState.get(province='ALL', age_group='ANY', city='', fsa='', keyword='',)
 
@@ -117,6 +119,7 @@ with logger.contextualize(session_id=current_session_id):
 
     refresh = st.sidebar.button("Refresh Results")
     if refresh:
+        logger.info("Refershing page")
         st.caching.clear_cache()
 
     query_params = st.experimental_get_query_params()
@@ -202,13 +205,14 @@ with logger.contextualize(session_id=current_session_id):
         mask = filtered_tweet_df['province'].str.contains(province, na=False, case=False) | filtered_tweet_df['province'].isnull()
         filtered_tweet_df = filtered_tweet_df[mask]
         filtered_tweet_df = filtered_tweet_df.sort_values(by=['province', 'created_at',])
+        logger.warning(f"No results have been found for: {search_criteria}. Expanded search criteria.")
         st.warning("""
         #### We didn't find any results for your search criteria. You might still be eligible for vaccination.
         #### We have expanded your search criteria to show you more matches. Please also look at other sources for vaccination opportunities.
         """)
 
     if len(search_criteria) > 20:
-        filtered_tweet_df = filtered_tweet_df[filtered_tweet_df['created_at'] > (datetime.now(timezone.utc) - timedelta(days=1))]
+        filtered_tweet_df = filtered_tweet_df[filtered_tweet_df['created_at'] > (datetime.now(timezone.utc) - timedelta(days=3))]
     else:
         filtered_tweet_df = filtered_tweet_df[filtered_tweet_df['created_at'] > (datetime.now(timezone.utc) - timedelta(days=7))]
 
@@ -250,6 +254,7 @@ with logger.contextualize(session_id=current_session_id):
         #### Please try searching other sources or try again later.
         """)
 
+    st.caption(f"Last updated: {datetime.now(tz=local_timzeone).strftime('%a %d %b %I:%M %p')}. (EST)")
     st.write("\n\n")
     st.empty()
 
@@ -258,7 +263,7 @@ with logger.contextualize(session_id=current_session_id):
         THE SOFTWARE AND PLATFORM IS PROVIDED ON AN ‘AS IS’ BASIS, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. THE PLATFORM (VACCINEUPDATES.CA) MAKES NO WARRANTIES, REPRESENTATIONS OR CONDITIONS, EXPRESS OR IMPLIED, WRITTEN OR ORAL, ARISING BY STATUTE, OPERATION OF LAW, COURSE OF DEALING, USAGE OF TRADE OR OTHERWISE, REGARDING THE PLATFORM OR SERVICES. VACCINEUPDATES.CA (INCLUDING ITS AFFILIATES, LICENSORS, SUPPLIERS AND SUBCONTRACTORS) DOES NOT REPRESENT OR WARRANT THAT THE PLATFORM AND SERVICES WILL MEET ANY OR ALL OF USER’S PARTICULAR REQUIREMENTS, THAT THE PLATFORM WILL OPERATE ERROR-FREE OR UNINTERRUPTED OR THAT ALL ERRORS OR DEFECTS IN THE SERVICE CAN BE FOUND OR CORRECTED.
         """)
 
-    logger.info(f"Finished serving session")
+    logger.info(f"Finished serving current page")
 
     # tweet_df = tweet_df.set_index('Time')
     # st.table(tweet_df)
