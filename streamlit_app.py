@@ -1,3 +1,4 @@
+from search import search_tweet_df
 from config import DB_PATH, SQLALCHEMY_DATABASE_URI
 from db import tweets, page_views
 from dummy import *
@@ -57,8 +58,7 @@ age_group_index_dict = {
 
 @st.cache(ttl=60)
 def get_tweet_df():
-    logger.info(f"Reading Tweets from sqlite database")
-    # engine = create_engine(f'sqlite:///{DB_PATH}')
+    logger.info(f"Reading Tweets from database")
     engine = create_engine(SQLALCHEMY_DATABASE_URI)
     tweet_df = pd.read_sql_table('tweet', engine)
     tweet_df['created_at'] = pd.to_datetime(tweet_df['created_at'], utc=True)
@@ -69,7 +69,6 @@ def get_tweet_df():
     return tweet_df
 
 def insert_page_view(session_id, search_criteria):
-    # engine = create_engine(f'sqlite:///{DB_PATH}')
     engine = create_engine(SQLALCHEMY_DATABASE_URI)
     Session = sessionmaker(bind=engine)
     search_criteria_str = json.dumps(search_criteria)
@@ -169,52 +168,20 @@ with logger.contextualize(session_id=current_session_id):
 
     search_criteria = {}
     filtered_tweet_df = tweet_df
-    if province != 'ALL':
-        filtered_tweet_df = filtered_tweet_df[filtered_tweet_df['province'].str.contains(province, na=False, case=False)]
-        search_criteria['province'] = province
-
-    if age_group != 'ANY':
-        search_substr = age_group
-        if age_group == '30+':
-            search_substr = '18|30'
-        elif age_group == '40+':
-            search_substr = '18|30|40'
-        elif age_group == '50+':
-            search_substr = '18|30|40|50'
-        filtered_tweet_df = filtered_tweet_df[filtered_tweet_df['age_groups'].str.contains(search_substr, na=False, case=False)]
-        search_criteria['age_group'] = age_group
-
-    if len(fsa) > 0:
-        filtered_tweet_df = filtered_tweet_df[filtered_tweet_df['FSAs'].str.contains(fsa, na=False, case=False)]
-        search_criteria['fsa'] = fsa
-
-    if len(city) > 0:
-        filtered_tweet_df = filtered_tweet_df[filtered_tweet_df['cities'].str.contains(city, na=False, case=False)]
-        search_criteria['city'] = city
-
-    if len(keyword) > 0:
-        filtered_tweet_df = filtered_tweet_df[filtered_tweet_df['tweet_text'].str.contains(keyword, na=False, case=False)]
-        search_criteria['keyword'] = keyword
+    search_criteria['province'] = province
+    search_criteria['age_group'] = age_group
+    search_criteria['city'] = city
+    search_criteria['fsa'] = fsa
+    search_criteria['keyword'] = keyword
 
     insert_page_view(current_session_id, search_criteria)
+    filtered_tweet_df, is_search_expanded = search_tweet_df(tweet_df, search_criteria)
 
-    if filtered_tweet_df.empty:
-        search_substr = '|'.join([val for val in search_criteria.values()])
-        logger.info(f"Expanding search criteria 'keyword': {search_substr}")
-        filtered_tweet_df = tweet_df[tweet_df['tweet_text'].str.contains(search_substr, na=False, case=False)]
-        mask = filtered_tweet_df['province'].str.contains(province, na=False, case=False) | filtered_tweet_df['province'].isnull()
-        filtered_tweet_df = filtered_tweet_df[mask]
-        filtered_tweet_df = filtered_tweet_df.sort_values(by=['province', 'created_at',])
-        logger.warning(f"No results have been found for: {search_criteria}. Expanded search criteria.")
+    if is_search_expanded:
         st.warning("""
         #### We didn't find any results for your search criteria. You might still be eligible for vaccination.
         #### We have expanded your search criteria to show you more matches. Please also look at other sources for vaccination opportunities.
         """)
-
-    if len(search_criteria) > 20:
-        filtered_tweet_df = filtered_tweet_df[filtered_tweet_df['created_at'] > (datetime.now(timezone.utc) - timedelta(days=3))]
-    else:
-        filtered_tweet_df = filtered_tweet_df[filtered_tweet_df['created_at'] > (datetime.now(timezone.utc) - timedelta(days=7))]
 
     if not filtered_tweet_df.empty:
         logger.info(f"{len(filtered_tweet_df)} results found for: {search_criteria}")
